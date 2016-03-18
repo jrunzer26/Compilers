@@ -1,0 +1,166 @@
+﻿Old Grammar
+--------------------------------------------------------------------------------
+prog      : stmt-list
+stmt-list : stmt-list stmt | stmt
+stmt      : PRINT expr | PRINT string
+string    : BEGINQUOTE charlist ENDQUOTE
+charlist  : charlist LETTER | ε
+expr      : expr + term | expr - term | term
+term      : term * factor | term / factor | factor
+factor    : ( expr ) | NUM
+--------------------------------------------------------------------------------
+
+(A1)
+New Grammar
+--------------------------------------------------------------------------------
+prog      : stmt-list
+stmt-list : stmt A
+A         : stmt A | ε
+stmt      : PRINT expr | PRINT string
+string    : BEGINQUOTE charlist ENDQUOTE
+charlist  : LETTER charlist | ε
+expr      : term C
+C         : + term C | - term C | ε
+term      : factor D
+D         : * factor D | / factor D | ε
+factor    : ( expr ) | NUM
+--------------------------------------------------------------------------------
+
+(A2)
+Left factored grammar
+--------------------------------------------------------------------------------
+prog      : stmt-list
+stmt-list : stmt stmt-list | stmt
+stmt      : PRINT B
+B         : expr | string
+string    : BEGINQUOTE charlist ENDQUOTE
+charlist  : LETTER charlist | ε
+expr      : term C
+C         : + term C | - term C | ε
+term      : factor D
+D         : * factor D | / factor D | ε
+factor    : ( expr ) | NUM
+--------------------------------------------------------------------------------
+
+(A3)
+First Sets
+--------------------------------------------------------------------------------
+First(prog) = First(prog) ∪ First(stmt-list) 
+            -> First(prog) ∪ First(stmt-list) ∪ First(stmt) 
+			-> {PRINT}
+				 
+First(stmt-list) = First(stmt-list) ∪ First(stmt) 
+                 -> {PRINT}
+				 
+First(A) = First(A) ∪ First(stmt-list)
+          -> {ε,PRINT}
+				 
+First(stmt) = {PRINT}
+
+First(B) = First(B) ∪ First(expr) ∪ First(string)
+         -> First(B) ∪ First(expr) ∪ First(term) ∪ {BEGINQUOTE}
+		 -> First(B) ∪ First(expr) ∪ First(term) ∪ First(factor) ∪ {BEGINQUOTE}
+		 -> {(,BEGINQUOTE}
+
+First(string) = {BEGINQUOTE}
+
+First(charlist) = {LETTER}
+
+First(expr) = First(expr) ∪ First(term)
+			-> First(expr) ∪ First(term) ∪ First(factor)
+			-> {(}
+
+First(C) = {+,-,ε}
+
+First(term) = First(term) ∪ First(factor)
+			-> {(,NUM}
+			
+first(D) = {*,/,ε}
+
+first(factor) = {(,NUM}
+
+FINAL FIRST Set
+First(prog)      = {PRINT}
+First(stmt-list) = {PRINT}
+First(stmt)      = {PRINT}
+First(B)         = {(,BEGINQUOTE,NUM}
+First(string)    = {BEGINQUOTE}
+First(charlist)  = {LETTER, ε}
+First(expr)      = {(, NUM}
+First(C)         = {+,-,ε}
+First(term)      = {(,NUM}
+First(D)         = {*,/,ε}
+First(factor)    = {(,NUM}
+
+--------------------------------------------------------------------------------
+
+(A4)
+Follow Sets
+--------------------------------------------------------------------------------
+Follow(prog) = {$}
+Follow(stmt-list) = {}
+Follow(stmt) = {PRINT}
+Follow(B) = {}
+Follow(string) = {}
+Follow(charlist) = {ENDQUOTE}
+Follow(expr) = {)}
+Follow(C) = Follow(expr)
+          -> {)}
+Follow(term) = First(C) - {ε}
+             -> {+,-,)}
+Follow(D) = Follow(C)
+		  -> {)}
+Follow(factor) = First(D) - {ε}
+			   -> {+,-,*,/,)}
+--------------------------------------------------------------------------------
+
+
+B1.
+--------------------------------------------------------------------------------
+Grammar
+prog : stmt-list
+stmt-list : stmt stmt-list | stmt | ε possibly?!?!?!?!?!?!?!?!?!?!?!?
+stmt : var := expr | loop | dec
+expr : expr + term | expr - term | term
+term : term * factor | term / factor | factor
+factor : ( expr ) | NUM | var
+loop : while( condition ) do stmt-list end while
+condition : expr < expr | expr > expr | condition and condition
+dec : declare var : type
+type : Integer
+
+---------
+terminals
+---------
+NUM : [/d]
+var : [a-zA-z]
+and
+<
+>
+(
+)
+Integer
+declare
+:
+:=
++
+-
+*
+/
+while
+do
+end while
+--------------
+non-terminals
+--------------
+prog
+stmt-list
+stmt
+expr
+loop
+dec
+term
+factor
+loop
+condition
+type
