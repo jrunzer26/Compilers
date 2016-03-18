@@ -9,57 +9,95 @@ import java.util.TreeMap;
 }
 
 start 
-	: ( stmtlist )+ EOF
+	: {System.out.println("public class A2_apples {\n\tpublic static void main(String[] args){");}( stmtlist {System.out.println( $stmtlist.s );}) EOF {System.out.print("\t}\n}\n");} EOF
 	;
 
-stmtlist 
-	: stmt stmtlist
-	| stmt
+
+stmtlist returns [String s]
+	: stmt a { $s =  $stmt.s + $a.s; }
 	;
 
-stmt 
-	: VAR ':=' expr
-	| loop
-	| dec
+
+a returns [String s]
+	: stmtlist { $s = $stmtlist.s; }
+	| { $s = ""; }
 	;
 
-expr 
-	: expr '+' term
-	| expr '-' term
-	| term
+
+stmt returns [String s]
+	: ID ':=' expr { $s = "\t\t" + $ID.getText() + " = " +  $expr.s + ";\n"; }
+	| loop { $s = "\t\t" + $loop.s +"\t\t}\n"; }
+	| dec { $s = "\t\t" + $dec.s + "\n"; }
 	;
 
-term 
-	: term '*' factor
-	| term '/' factor
-	| factor
+expr returns [String s]
+	: term c { $s = $term.s + $c.s; }
 	;
 
-factor 
-	: '(' expr ')'
-	| NUM
-	| VAR
+c returns [String s]
+	: '+' term { $s = " + " + $term.s; }
+	| '-' term { $s = " - " + $term.s; }
+	| { $s = ""; }
 	;
 
-loop 
-	: 'while(' condition ') do' stmtlist 'end while'
+term returns [String s]
+	: factor d { $s = $factor.s + $d.s; }
 	;
 
-condition 
-	: expr '<' expr
-	| expr '>' expr
-	| condition 'and' condition
+d returns [String s]
+	: '*' factor { $s = " * " + $factor.s; }
+	| '/' factor { $s = " / " + $factor.s; }
+	| { $s = ""; }
 	;
 
-dec 
-	: 'declare' VAR ':' type
+factor returns [String s]
+	: '(' expr ')' { $s = "(" + $expr.s + ")"; }
+	| var { $s = $var.number; }
 	;
 
-type 
-	: 'Integer'
+loop returns [String s]
+	: 'while' '(' conditionlist ')' 'do' stmtlist 'end while' 
+		{ 
+			$s = "while (" + $conditionlist.s + ") {\n\t" +
+				$stmtlist.s;
+		}
+	;
+
+conditionlist returns [String s]
+	: condition e { $s = $condition.s + $e.s; }
+	;
+
+e returns [String s]
+	: 'and' conditionlist { $s = " && " + $conditionlist.s; }
+	| { $s = ""; }
+	;
+
+condition returns [String s]
+	: expr1=expr '<' expr2=expr { $s = "(" + $expr1.s + " < " + $expr2.s + ")"; }
+	| expr1=expr '>' expr2=expr { $s = "(" + $expr1.s + " > " + $expr2.s + ")"; }
+	;
+
+dec returns [String s]
+	: 'declare' ID ':' type { $s = $type.s + " " + $ID.getText() + ";"; }
+	;
+
+type returns [String s]
+	: 'Integer' { $s = "int"; }
+	;
+
+var returns [String number]
+	: ID 
+		{ 
+			$number = ""+$ID.getText(); 
+		}
+	| NUM 
+		{ 
+			$number = ""+ $NUM.getText(); 
+		}
 	;
 
 /* Terminal Symbols */
 NUM : ('0' .. '9')+ ;
-VAR : ('a' .. 'z' | 'A' .. 'Z')+ ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-')* ;
+ID : ('a' .. 'z' | 'A' .. 'Z')+ ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-')* ;
 WS : (' ' | '\t' | '\r' | '\n') {skip();} ;
+
