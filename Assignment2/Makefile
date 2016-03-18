@@ -6,7 +6,7 @@ all:
 	javac -cp $(CP) *.java
 
 run:
-	@java -cp $(CP) A2ParseFile inputfile
+	@java -cp $(CP) A2Parse inputfile
 
 clean:
-	rm -rf *.java *.tokens *.class
+	rm -rf A2*.java A2*.tokens *.class
