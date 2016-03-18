@@ -1,0 +1,12 @@
+ANTLR = /usr/local/lib/antlr/antlr-4-4-complete.jar
+CP = $(ANTLR):.
+
+all:
+	java -jar $(ANTLR) -no-listener -no-visitor *.g4
+	javac -cp $(CP) *.java
+
+run:
+	@java -cp $(CP) A2ParseFile inputfile
+
+clean:
+	rm -rf *.java *.tokens *.class
