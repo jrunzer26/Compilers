@@ -15,7 +15,7 @@ New Grammar
 --------------------------------------------------------------------------------
 prog      : stmt-list
 stmt-list : stmt A
-A         : stmt A | ε
+A         : stmt-list | ε
 stmt      : PRINT expr | PRINT string
 string    : BEGINQUOTE charlist ENDQUOTE
 charlist  : LETTER charlist | ε
@@ -30,7 +30,8 @@ factor    : ( expr ) | NUM
 Left factored grammar
 --------------------------------------------------------------------------------
 prog      : stmt-list
-stmt-list : stmt stmt-list | stmt
+stmt-list : stmt A
+A         : stmt-list | ε
 stmt      : PRINT B
 B         : expr | string
 string    : BEGINQUOTE charlist ENDQUOTE
@@ -82,6 +83,7 @@ first(factor) = {(,NUM}
 FINAL FIRST Set
 First(prog)      = {PRINT}
 First(stmt-list) = {PRINT}
+First(A)         = {PRINT,ε}
 First(stmt)      = {PRINT}
 First(B)         = {(,BEGINQUOTE,NUM}
 First(string)    = {BEGINQUOTE}
@@ -98,19 +100,20 @@ First(factor)    = {(,NUM}
 Follow Sets
 --------------------------------------------------------------------------------
 Follow(prog) = {$}
-Follow(stmt-list) = {}
-Follow(stmt) = {PRINT}
+Follow(stmt-list) = {$}
+Follow(A) = Follow(stmt-list) = {$}
+Follow(stmt) = {PRINT,$}
 Follow(B) = {}
 Follow(string) = {}
 Follow(charlist) = {ENDQUOTE}
 Follow(expr) = {)}
 Follow(C) = Follow(expr)
           -> {)}
-Follow(term) = First(C) - {ε}
-             -> {+,-,)}
-Follow(D) = Follow(C)
-		  -> {)}
-Follow(factor) = First(D) - {ε}
+Follow(term) = First(c) + Follow(expr) + First(D) - {ε}
+             -> {+,-,*,/,)}
+Follow(D) = Follow(term)
+		  -> {+,-,)}
+Follow(factor) = First(D) + Follow(term) - {ε}
 			   -> {+,-,*,/,)}
 --------------------------------------------------------------------------------
 
