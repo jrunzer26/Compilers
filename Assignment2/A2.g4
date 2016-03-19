@@ -1,7 +1,7 @@
-grammar A2Jason;
+grammar A2;
 
 @header {
-import java.util.TreeMap;
+
 }
 
 @members {
@@ -9,7 +9,7 @@ import java.util.TreeMap;
 }
 
 start 
-	: {System.out.println("public class A2_apples {\n\tpublic static void main(String[] args){");}( stmtlist {System.out.println( $stmtlist.s );}) EOF {System.out.print("\t}\n}\n");} EOF
+	: {System.out.println("public class A2 {\n\tpublic static void main(String[] args) {");}( stmtlist {System.out.println( $stmtlist.s );}) EOF {System.out.print("\t}\n}\n");} EOF
 	;
 
 
@@ -56,11 +56,8 @@ factor returns [String s]
 	;
 
 loop returns [String s]
-	: 'while' '(' conditionlist ')' 'do' stmtlist 'end while' 
-		{ 
-			$s = "while (" + $conditionlist.s + ") {\n\t" +
-				$stmtlist.s;
-		}
+	: 'while' '(' conditionlist ')' 'do' { $s = "while (" + $conditionlist.s + ") {\n"; } 
+			( stmt { $s = $s + "\t" + $stmt.s; } )+ 'end while' 
 	;
 
 conditionlist returns [String s]

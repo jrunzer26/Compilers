@@ -15,11 +15,9 @@ public class ParseFile {
 				
 			
         ANTLRInputStream input = new ANTLRInputStream(in);
-        A2JasonLexer lex = new A2JasonLexer(input);
+        A2Lexer lex = new A2Lexer(input);
         CommonTokenStream tok = new CommonTokenStream(lex);
-        A2JasonParser parser = new A2JasonParser(tok);
-
+        A2Parser parser = new A2Parser(tok);
         parser.start();
-    
     }
 }
