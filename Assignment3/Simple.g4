@@ -7,6 +7,8 @@ import java.util.TreeMap;
 @members {
 	// The String is the variable name, and the Integer will be the register location
 	public static TreeMap<String, Integer> decVars = new TreeMap<String, Integer>();
+	public static TreeMap<String, Integer> loops = new TreeMap<String, Integer>();
+	public static int nextLoop = 0;
 	public static int nextRegister = 0;
 }
 
@@ -25,99 +27,127 @@ prog
   		System.out.println(".limit locals 10");
 	}
 	block 
-	{  }
+	{
+		System.out.println("return\n.end method");
+	}
 	;	
 
-expr returns [int val]
-	: term { $val = $term.val; } ('+' term { $val = $val + $term.val; })*
-	| term { $val = $term.val; } ('-' term { $val = $val - $term.val; })*
+expr
+	: term {  } ('+' term { System.out.println("iadd"); })*
+	| term {  } ('-' term { System.out.println("isub"); })*
 	;
 
-term returns [int val]
-	: factor { $val = $factor.val; } ('*' factor { $val = $val * $factor.val; })*
-	| factor{ $val = $factor.val; }  ('/' factor { $val = $val / $factor.val; })*
+term
+	: factor { } ('*' factor { System.out.println("imul"); } )*
+	| factor{ }  ('/' factor { System.out.println("idiv"); } )*
 	;
 
 
-factor returns [int val]
-	: '(' expr ')' { $val = $expr.val; }
-	| var 
+factor
+	: '(' expr ')'
+	| var
+	;
+
+repeatStmt
+	@init {
+    		int x = 0;
+		int i = 0;
+		int l = 0;
+	}
+	: 'repeat' 
 		{
-			$val = $var.number;
+			i = nextRegister;
+			decVars.put(String.valueOf(nextRegister), nextRegister);
+			System.out.println("ldc 0");
+  			System.out.println("istore " + decVars.get(String.valueOf(nextRegister++)));
+		} 
+		expr '{'
+		{
+			x = nextRegister;
+			l = nextLoop;
+			decVars.put(String.valueOf(nextRegister), nextRegister);
+			System.out.println("istore " + decVars.get(String.valueOf(nextRegister++)));
+			loops.put(String.valueOf(nextLoop), nextLoop);
+			System.out.println("loop" + loops.get(String.valueOf(nextLoop++)) + ":");
+		}
+	 block '}'
+		{
+			System.out.println("iinc " +  decVars.get(String.valueOf(i)) + " " + 1);
+  			System.out.println("iload " + decVars.get(String.valueOf(i)));
+  			System.out.println("iload " + decVars.get(String.valueOf(x)));
+			System.out.println("if_icmplt loop" + loops.get(String.valueOf(l)));
 		}
 	;
 
-repeatStmt returns [String s]
-	: 'repeat' expr '{' block '}'
-		{
-			$s = "";
-		}
+block
+	: (stmt)+
 	;
 
-block returns [String s]
-	: (stmt { 
-			if ($s != null)
-				$s = $s + $stmt.s;
-			else
-				$s = $stmt.s;
-		})+
+stmt
+	: printStmt {
+		System.out.println("; newline after a statement");
+		System.out.println("getstatic java/lang/System/out Ljava/io/PrintStream;");
+		System.out.println("ldc \"\\n\"");
+		System.out.println("invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V");
+	}
+	| assignStmt
+	| repeatStmt
 	;
 
-stmt returns [String s]
-	: printStmt { $s = $printStmt.s; }
-	| assignStmt { $s = $assignStmt.s; }
-	| repeatStmt { $s = ""; }
+printStmt
+	: 'print' '(' exprlist ')'
 	;
 
-printStmt returns [String s]
-	: 'print' '(' exprlist ')' { $s = $exprlist.s; }
-	;
-
-exprlist returns [String s]
+exprlist
 	:
+
+	(
 	{
 		System.out.println("getstatic java/lang/System/out Ljava/io/PrintStream;");
 	}
-	(e1=expr ',' 
+	e1=expr ',' 
 		{ 
-			$s = "";
-    			System.out.println("invokevirtual java/io/PrintStream/println(I)V");
+
+    			System.out.println("invokevirtual java/io/PrintStream/print(I)V");
 		} 
 	)*
 	{
+		System.out.println(" ; print a space inbetween each result");
+		System.out.println("getstatic java/lang/System/out Ljava/io/PrintStream;");
+		System.out.println("ldc \" \"");
+		System.out.println("invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V");
+		
 		System.out.println("; Print the value");
 		System.out.println("getstatic java/lang/System/out Ljava/io/PrintStream;");
 	} 
 	e2=expr
 	{
-    		System.out.println("invokevirtual java/io/PrintStream/println(I)V");
+    		System.out.println("invokevirtual java/io/PrintStream/print(I)V");
 	}
 	;
 
-assignStmt returns [String s]
+assignStmt
 	: 'let' ID '=' expr
 		{ 
-			decVars.put( $ID.getText(), nextRegister++);
-			$s = "";
+			if(!decVars.containsKey($ID.getText()))
+				decVars.put( $ID.getText(), nextRegister++);
 			System.out.println("istore " + decVars.get($ID.getText()));
 		}
 	;
 
-var returns [int number]
+var
 	: x=ID 
 		{ 
-			$number = decVars.get($x.getText());
 			System.out.println("; load the variable from the register");
 			System.out.println("iload " + decVars.get($x.getText()));
 		}
 	| x=NUM 
 		{ 
-			$number = Integer.parseInt($x.getText());
 			System.out.println("ldc " + $x.getText());
 		}
 	;
 
 /* Terminal Symbols */
 NUM : ('0' .. '9')+ ;
-ID : ('a' .. 'z' | 'A' .. 'Z')+ ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-')* ;
+ID : ('a' .. 'z' | 'A' .. 'Z')+ ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )* ;
 WS : (' ' | '\t' | '\r' | '\n') {skip();} ;

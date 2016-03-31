@@ -17,6 +17,9 @@ forloop:
 	java -jar jasmin.jar ./forloop.j
 	java Forloop
 
+simplestuff: 
+	java -jar jasmin.jar ./simplestuff.j
+	java SimpleStuff
 clean:
 	rm -rf *.class
 
