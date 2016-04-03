@@ -77,7 +77,6 @@ public class SimpleParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 
-					System.out.println(".class public SimpleStuff");
 					System.out.println(".super java/lang/Object");
 					System.out.println(".method public <init>()V");
 			  		System.out.println("aload_0");

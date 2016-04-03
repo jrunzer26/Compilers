@@ -6,10 +6,10 @@ all:
 	javac -cp $(CP) *.java
 
 run:
-	@java -cp $(CP) ParseFile input
+	@java -cp $(CP) SimpleCompiler input
 
 hello:
 	java -jar jasmin.jar ./hello.j
 
 clean:
-	rm -rf Simple*.java Simple*.tokens *.class
+	rm -rf SimpleL*.java SimpleP*.java Simple*.tokens *.class

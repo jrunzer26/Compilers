@@ -15,7 +15,6 @@ import java.util.TreeMap;
 prog
 	: 
 	{
-		System.out.println(".class public SimpleStuff");
 		System.out.println(".super java/lang/Object");
 		System.out.println(".method public <init>()V");
   		System.out.println("aload_0");
