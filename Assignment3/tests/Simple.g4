@@ -108,17 +108,15 @@ exprlist
 		{ 
 
     			System.out.println("invokevirtual java/io/PrintStream/print(I)V");
+			System.out.println(" ; print a space inbetween each result");
+			System.out.println("getstatic java/lang/System/out Ljava/io/PrintStream;");
+			System.out.println("ldc \" \"");
+			System.out.println("invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V");
 		} 
 	)*
 	{
-		System.out.println(" ; print a space inbetween each result");
 		System.out.println("getstatic java/lang/System/out Ljava/io/PrintStream;");
-		System.out.println("ldc \" \"");
-		System.out.println("invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V");
-		
-		System.out.println("; Print the value");
-		System.out.println("getstatic java/lang/System/out Ljava/io/PrintStream;");
-	} 
+	}
 	e2=expr
 	{
     		System.out.println("invokevirtual java/io/PrintStream/print(I)V");

@@ -17,4 +17,4 @@ input:
 	java input
 
 clean:
-	rm -rf SimpleL*.java SimpleP*.java Simple*.tokens *.class
+	rm -rf SimpleL*.java SimpleP*.java Simple*.tokens *.class *.j
