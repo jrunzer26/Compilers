@@ -83,7 +83,7 @@ class I {
     }
 
     public static String invokePrintln() {
-        return "invokevirtual java/io/PrintStream/println(I)V";
+        return "invokevirtual java/io/PrintStream/print(I)V";
     }
 
     public static String Label(String label) {
