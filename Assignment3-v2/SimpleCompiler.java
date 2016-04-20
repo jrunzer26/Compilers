@@ -8,7 +8,7 @@ class SimpleCompiler {
   	      System.out.println("Error: Invalid use of command line argument, expected file name");
   	      System.exit(0);       
       	}
-      FileInputStream in = new FileInputStream(args[0]);
+        FileInputStream in = new FileInputStream(args[0]);
         ANTLRInputStream input = new ANTLRInputStream(in);
         SimpleLexer lexer = new SimpleLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -19,7 +19,7 @@ class SimpleCompiler {
       		index1 = 0;
    	    if (index2 == -1)
       		index2 = args[0].length();
-    	  System.out.println(".class public " + args[0].substring(index1, index2));
+    	System.out.println(".class public " + args[0].substring(index1, index2));
         parser.prog();
     }
 }
@@ -70,6 +70,7 @@ class I {
     public static String ISTORE(int r) {
         return "istore " + r;
     }
+    
     public static String printSpace() {
       String r;
       r = "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
@@ -90,14 +91,6 @@ class I {
         return label + ":";
     }
 
-    public static String IFZERO(String label) {
-        return "ifeq " + label;
-    }
-
-    public static String IFGE(String label) {
-        return "ifge " + label;
-    }
-    
     public static String IDIV() {
       return "idiv";
     }
@@ -112,10 +105,6 @@ class I {
 
     public static String IF_ICMPLT(String label) {
       return "if_icmplt " + label;
-    }
-
-    public static String GOTO(String label) {
-        return "goto " + label;
     }
 
     public static String LDC(int v) {
@@ -135,14 +124,5 @@ class I {
 
     public static String ISUB() {
         return "isub";
-    }
-
-    public static String Op(String op) {
-        if(op.equals("+"))
-            return IADD();
-        else if(op.equals("-"))
-            return ISUB();
-        else
-            return IADD();
     }
 }

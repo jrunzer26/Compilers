@@ -1,3 +1,4 @@
+/* Jason Runzer 100520993 */
 grammar Simple;
 
 @header {
@@ -62,26 +63,26 @@ factor returns [Code code]
 	;
 
 repeatStmt returns [Code code]
-	@init {
-          int x = 0;
-	  int i = 0;
-	  int l = 0;
-          $code = new Code();
-	}
-	: 'repeat' expr '{' block '}'
-	{
-	  x = sym.createNewVar();
-	  $code.append(I.LDC(0)).append(I.ISTORE(x));
-	  String l1 = Code.newLabel();
-	  $code.append(I.Label(l1));
-	  $code
-	  .extend($block.code)
-	  .append(I.IINC(x,1))
-	  .append(I.ILOAD(x))
-	  .extend($expr.code)
-	  .append(I.IF_ICMPLT(l1));
-	}
-	;
+  @init {
+    int x = 0;
+    int i = 0;
+    int l = 0;
+    $code = new Code();
+  }
+  : 'repeat' expr '{' block '}'
+  {
+    x = sym.createNewVar();
+    $code.append(I.LDC(0)).append(I.ISTORE(x));
+    String l1 = Code.newLabel();
+    $code.append(I.Label(l1));
+    $code
+    .extend($block.code)
+    .append(I.IINC(x,1))
+    .append(I.ILOAD(x))
+    .extend($expr.code)
+    .append(I.IF_ICMPLT(l1));
+  }
+  ;
 
 block returns [Code code]
   @init {
@@ -110,8 +111,7 @@ exprlist returns [Code code]
     $code = new Code();
   }
   :
-  (
-  e1=expr ',' 
+  (e1=expr ',' 
   { 
     $code.append(I.GetPrintStream());
     $code.extend($e1.code);
